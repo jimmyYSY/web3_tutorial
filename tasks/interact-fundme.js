@@ -1,33 +1,12 @@
-// import ethers.js
-// create main function
+const {task} = require("hardhat/config");
 
- 
+task("interact-fundme", "Interacts with the FundMe contract")
+    .addParam("addr","fundme contract address")
+    .setAction(async (taskArgs, hre) => {
 
-// execute main function
-
-const { ethers } = require("hardhat");
-
-async function main(){
-    //create factory 
     const fundMeFactory = await ethers.getContractFactory("FundMe");
-    console.log("Deploying contract...");
-    //deploy contract
-    const lockTime = 600; 
-    const fundMe = await fundMeFactory.deploy(lockTime);
-    await fundMe.waitForDeployment();
-    console.log("contract has been deployed to:", fundMe.target);
-
-    if(hre.network.config.chainId === 11155111 && process.env.ETHERSCAN_API_KEY){
-        // Wait for 5 confirmations and 1 minute for Etherscan to index the contract
-        console.log("Waiting for 5 confirmations and Etherscan indexing...");
-        await fundMe.deploymentTransaction().wait(5);
-        await new Promise(resolve => setTimeout(resolve, 60000)); // Wait 60 seconds
-        //verify contract
-        console.log("Verifying contract on Etherscan...");
-        await veriifyFundMe(fundMe.target, [lockTime]);
-    } else {
-        console.log("Skipping verification. Not on Sepolia or missing Etherscan API key.");
-    }
+    const fundMe = await fundMeFactory.attach(taskArgs.addr);
+    console.log("Interacting with contract at:", fundMe.target);
 
     // init 2 accounts
     const [firstAccount, secondAccount] = await ethers.getSigners();
@@ -59,19 +38,6 @@ async function main(){
     const secondAccountbalanceInFundMe = await fundMe.fundersToAmount(secondAccount.address);
     console.log("Account 2 funded amount:", ethers.formatEther(secondAccountbalanceInFundMe), "ETH");
     console.log("Balance of second account" + secondAccount.address + " is " + contractBalance2);
-}
+});
 
-async function veriifyFundMe(fundMeAddr, args){
-    // await hre.run("verify:verify", {});
-    await hre.run("verify:verify", {
-        address: fundMeAddr,
-        constructorArguments: args,
-    });
-}
-
-main()
-    .then(() => process.exit(0))
-    .catch((error) => {
-        console.error(error);
-        process.exit(1);
-    });
+module.exports = {};
