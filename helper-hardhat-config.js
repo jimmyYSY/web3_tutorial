@@ -1,5 +1,5 @@
 const DECIMAL = 8;
-const INITIAL_ANSWER = 30000000000;
+const INITIAL_ANSWER = 300000000000;
 const devlopmentChains = ["hardhat", "local"];
 const LOCK_TIME = 180; // 3 minutes
 const CONFIRMATIONS = 5; 
